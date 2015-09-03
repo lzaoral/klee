@@ -429,9 +429,12 @@ private:
   void initTimers();
   void processTimers(ExecutionState *current,
                      double maxInstTime);
+
   void checkMemoryUsage();
   void printDebugInstructions(ExecutionState &state);
   void doDumpStates();
+
+  std::string getLineInfo(const ExecutionState &state, bool trueBranch);
 
 public:
   Executor(const InterpreterOptions &opts, InterpreterHandler *ie);

@@ -482,6 +482,8 @@ private:
   void dumpStates();
   void dumpPTree();
 
+  std::string getPathInfo(const ExecutionState &state, bool trueBranch);
+
 public:
   Executor(llvm::LLVMContext &ctx, const InterpreterOptions &opts,
       InterpreterHandler *ie);

@@ -323,8 +323,11 @@ const Module *Executor::setModule(llvm::Module *module,
 #else
   DataLayout *TD = kmodule->targetData;
 #endif
+  unsigned int pointerBitWidth = TD->getPointerSizeInBits();
   Context::initialize(TD->isLittleEndian(),
-                      (Expr::Width) TD->getPointerSizeInBits());
+                      (Expr::Width) pointerBitWidth);
+
+  memory->setPointerBitWidth(pointerBitWidth);
 
   specialFunctionHandler = new SpecialFunctionHandler(*this);
 
@@ -3384,9 +3387,11 @@ void Executor::runFunctionAsMain(Function *f,
   delete processTree;
   processTree = 0;
 
+  unsigned int pointerBitWidth = memory->getPointerBitWidth();
+
   // hack to clear memory objects
   delete memory;
-  memory = new MemoryManager(NULL);
+  memory = new MemoryManager(NULL, pointerBitWidth);
 
   globalObjects.clear();
   globalAddresses.clear();

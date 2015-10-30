@@ -26,9 +26,12 @@ namespace klee {
     typedef std::set<MemoryObject*> objects_ty;
     objects_ty objects;
     ArrayCache *const arrayCache;
+    unsigned int pointerBitWidth;
 
   public:
-    MemoryManager(ArrayCache *arrayCache) : arrayCache(arrayCache) {}
+    MemoryManager(ArrayCache *arrayCache, unsigned int bw = 64)
+        : arrayCache(arrayCache), pointerBitWidth(bw) {}
+
     ~MemoryManager();
 
     MemoryObject *allocate(uint64_t size, bool isLocal, bool isGlobal,
@@ -38,6 +41,9 @@ namespace klee {
     void deallocate(const MemoryObject *mo);
     void markFreed(MemoryObject *mo);
     ArrayCache *getArrayCache() const { return arrayCache; }
+
+    void setPointerBitWidth(unsigned int bw) { pointerBitWidth = bw; }
+    unsigned int getPointerBitWidth() const { return pointerBitWidth; }
   };
 
 } // End klee namespace

@@ -395,7 +395,8 @@ void KModule::prepare(const Interpreter::ModuleOptions &opts,
 #else
   PassManager pm3;
 #endif
-  pm3.add(createCFGSimplificationPass());
+  if (opts.Optimize)
+    pm3.add(createCFGSimplificationPass());
   switch(SwitchType) {
   case eSwitchTypeInternal: break;
   case eSwitchTypeSimple: pm3.add(new LowerSwitchPass()); break;

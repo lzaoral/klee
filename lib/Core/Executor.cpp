@@ -3233,8 +3233,14 @@ void Executor::executeAlloc(ExecutionState &state,
     MemoryObject *mo = memory->allocate(CE->getZExtValue(), isLocal, false, 
                                         state.prevPC->inst);
     if (!mo) {
-      bindLocal(target, state, 
-                ConstantExpr::alloc(0, Context::get().getPointerWidth()));
+      // we should allocate something? Then this is a problem...
+      if (CE->getZExtValue() != 0) {
+        terminateStateEarly(state, "Allocating memory failed");
+        return;
+      } else {
+        bindLocal(target, state,
+                  ConstantExpr::alloc(0, Context::get().getPointerWidth()));
+      }
     } else {
       ObjectState *os = bindObjectInState(state, mo, isLocal);
       if (zeroMemory) {

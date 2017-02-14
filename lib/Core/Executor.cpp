@@ -2942,13 +2942,30 @@ void Executor::terminateState(ExecutionState &state) {
   }
 }
 
-void Executor::terminateStateEarly(ExecutionState &state, 
+void Executor::terminateStateEarly(ExecutionState &state,
                                    const Twine &message) {
   if (ExitOnErrorType.empty() &&
       (!OnlyOutputStatesCoveringNew || state.coveredNew ||
       (AlwaysOutputSeeds && seedMap.count(&state))))
     interpreterHandler->processTestCase(state, (message + "\n").str().c_str(),
                                         "early");
+
+  std::string msg = message.str();
+  static std::set< std::pair<Instruction*, std::string> > emittedErrors;
+  Instruction * lastInst;
+
+  const InstructionInfo &ii = getLastNonKleeInternalInstruction(state, &lastInst);
+  bool notemitted = emittedErrors.insert(std::make_pair(lastInst, msg)).second;
+
+  // give a message about found error
+  if (EmitAllErrors || notemitted) {
+    if (ii.file != "") {
+      klee_message("ERROR: %s:%d: %s", ii.file.c_str(), ii.line, msg.c_str());
+    } else {
+      klee_message("ERROR: (location information missing) %s", msg.c_str());
+    }
+  }
+
   terminateState(state);
 }
 

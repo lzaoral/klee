@@ -4,7 +4,10 @@ set -ev
 sudo apt-get install -y llvm-${LLVM_VERSION} llvm-${LLVM_VERSION}-dev
 
 if [ "${LLVM_VERSION}" != "2.9" ]; then
-    sudo apt-get install -y llvm-${LLVM_VERSION}-tools clang-${LLVM_VERSION}
+    sudo apt-get install -y clang-${LLVM_VERSION}
+    if [ "${LLVM_VERSION}" != "3.8" -a "${LLVM_VERSION}" != "3.9" ]; then
+	sudo apt-get install -y llvm-${LLVM_VERSION}-tools
+    fi
     sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${LLVM_VERSION} 20
     sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${LLVM_VERSION} 20
 else

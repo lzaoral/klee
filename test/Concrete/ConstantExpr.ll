@@ -48,16 +48,12 @@ define void @"test_logical_ops"() {
   
   %t4 = shl i32 lshr(i32 ptrtoint(i32* @gInt to i32), i32 8), 8
   %t5 = shl i32 ashr(i32 ptrtoint(i32* @gInt to i32), i32 8), 8
-  %t6 = lshr i32 shl(i32 ptrtoint(i32* @gInt to i32), i32 8), 8
   
   %t7 = icmp eq i32 %t4, %t5     
-  %t8 = icmp ne i32 %t4, %t6     
   
   %t9 = zext i1 %t7 to i8
-  %t10 = zext i1 %t8 to i8
   
   call void @print_i8(i8 %t9)
-  call void @print_i8(i8 %t10)
   
   ret void   
 }

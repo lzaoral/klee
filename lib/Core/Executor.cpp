@@ -2974,7 +2974,7 @@ std::string Executor::getAddressInfo(ExecutionState &state,
     const MemoryObject *mo = lower->first;
     std::string alloc_info;
     mo->getAllocInfo(alloc_info);
-    info << "object at " << mo->address
+    info << "object at " << mo->getAddressString()
          << " of size " << mo->size << "\n"
          << "\t\t" << alloc_info << "\n";
   }
@@ -2987,7 +2987,7 @@ std::string Executor::getAddressInfo(ExecutionState &state,
       const MemoryObject *mo = lower->first;
       std::string alloc_info;
       mo->getAllocInfo(alloc_info);
-      info << "object at " << mo->address 
+      info << "object at " << mo->getAddressString()
            << " of size " << mo->size << "\n"
            << "\t\t" << alloc_info << "\n";
     }

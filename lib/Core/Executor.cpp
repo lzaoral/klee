@@ -2241,7 +2241,8 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 
   case Instruction::GetElementPtr: {
     KGEPInstruction *kgepi = static_cast<KGEPInstruction*>(ki);
-    ref<Expr> base = eval(ki, 0, state).value;
+    KValue pointer = eval(ki, 0, state);
+    ref<Expr> base = pointer.getOffset();
 
     for (std::vector< std::pair<unsigned, uint64_t> >::iterator 
            it = kgepi->indices.begin(), ie = kgepi->indices.end(); 
@@ -2255,7 +2256,8 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     if (kgepi->offset)
       base = AddExpr::create(base,
                              Expr::createPointer(kgepi->offset));
-    bindLocal(ki, state, base);
+    pointer.setOffset(base);
+    bindLocal(ki, state, pointer);
     break;
   }
 

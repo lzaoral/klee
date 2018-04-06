@@ -110,6 +110,7 @@ public:
     Exec,
     External,
     Free,
+    Leak,
     Model,
     Overflow,
     Ptr,

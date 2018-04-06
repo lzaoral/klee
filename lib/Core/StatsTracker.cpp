@@ -594,6 +594,8 @@ void StatsTracker::updateStateStatistics(uint64_t addend) {
   for (std::set<ExecutionState*>::iterator it = executor.states.begin(),
          ie = executor.states.end(); it != ie; ++it) {
     ExecutionState &state = **it;
+    if (!state.pc)
+        continue;
     const InstructionInfo &ii = *state.pc->info;
     theStatisticManager->incrementIndexedValue(stats::states, ii.id, addend);
     if (UseCallPaths)
@@ -1025,6 +1027,9 @@ void StatsTracker::computeReachableUncovered() {
 
       if (next==es->stack.end()) {
         kii = es->pc;
+        // no other instruction to execute
+        if (!kii)
+            break;
       } else {
         kii = next->caller;
         ++kii;

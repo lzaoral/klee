@@ -60,6 +60,8 @@ bool IntrinsicCleanerPass::runOnBasicBlock(BasicBlock &b, Module &M) {
       case Intrinsic::vastart:
       case Intrinsic::vaend:
       case Intrinsic::fabs:
+      case Intrinsic::lifetime_start:
+      case Intrinsic::lifetime_end:
         break;
 
         // Lower vacopy so that object resolution etc is handled by

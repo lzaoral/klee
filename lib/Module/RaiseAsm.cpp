@@ -83,8 +83,8 @@ bool RaiseAsmPass::runOnModule(Module &M) {
   bool changed = false;
 
   std::string Err;
-  std::string HostTriple = llvm::sys::getDefaultTargetTriple();
-  const Target *NativeTarget = TargetRegistry::lookupTarget(HostTriple, Err);
+  std::string BitcodeTriple = M.getTargetTriple();
+  const Target *NativeTarget = TargetRegistry::lookupTarget(BitcodeTriple, Err);
 
   TargetMachine * TM = 0;
   if (NativeTarget == 0) {
@@ -92,24 +92,24 @@ bool RaiseAsmPass::runOnModule(Module &M) {
     TLI = 0;
   } else {
 #if LLVM_VERSION_CODE >= LLVM_VERSION(3, 9)
-    TM = NativeTarget->createTargetMachine(HostTriple, "", "", TargetOptions(),
+    TM = NativeTarget->createTargetMachine(BitcodeTriple, "", "", TargetOptions(),
         None);
     TLI = TM->getSubtargetImpl(*(M.begin()))->getTargetLowering();
 #elif LLVM_VERSION_CODE >= LLVM_VERSION(3, 7)
-    TM = NativeTarget->createTargetMachine(HostTriple, "", "", TargetOptions());
+    TM = NativeTarget->createTargetMachine(BitcodeTriple, "", "", TargetOptions());
     TLI = TM->getSubtargetImpl(*(M.begin()))->getTargetLowering();
 #elif LLVM_VERSION_CODE >= LLVM_VERSION(3, 6)
-    TM = NativeTarget->createTargetMachine(HostTriple, "", "", TargetOptions());
+    TM = NativeTarget->createTargetMachine(BitcodeTriple, "", "", TargetOptions());
     TLI = TM->getSubtargetImpl()->getTargetLowering();
 #else
-    TM = NativeTarget->createTargetMachine(HostTriple, "", "",
+    TM = NativeTarget->createTargetMachine(BitcodeTriple, "", "",
                                                           TargetOptions());
     TLI = TM->getTargetLowering();
 #endif
 
-    triple = llvm::Triple(HostTriple);
+    triple = llvm::Triple(BitcodeTriple);
   }
-  
+
   for (Module::iterator fi = M.begin(), fe = M.end(); fi != fe; ++fi) {
     for (Function::iterator bi = fi->begin(), be = fi->end(); bi != be; ++bi) {
       for (BasicBlock::iterator ii = bi->begin(), ie = bi->end(); ii != ie;) {

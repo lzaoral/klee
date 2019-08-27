@@ -13,7 +13,7 @@
 #include "klee/Expr/Expr.h"
 #include "klee/SolverCmdLine.h"
 #include "klee/Internal/System/Time.h"
-#include "klee/util/Assignment.h"
+#include "klee/Expr/Assignment.h"
 
 #include <vector>
 

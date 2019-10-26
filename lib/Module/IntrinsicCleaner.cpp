@@ -264,14 +264,19 @@ bool IntrinsicCleanerPass::runOnBasicBlock(BasicBlock &b, Module &M) {
       case Intrinsic::trap: {
         // Intrinsic instruction "llvm.trap" found. Directly lower it to
         // a call of the abort() function.
-        Function *F = cast<Function>(
-            M.getOrInsertFunction("abort", Type::getVoidTy(ctx)
-		    KLEE_LLVM_GOIF_TERMINATOR));
-        F->setDoesNotReturn();
-        F->setDoesNotThrow();
+        auto C = M.getOrInsertFunction("abort", Type::getVoidTy(ctx)
+                                                    KLEE_LLVM_GOIF_TERMINATOR);
+#if LLVM_VERSION_CODE >= LLVM_VERSION(9, 0)
+        if (auto *F = dyn_cast<Function>(C.getCallee())) {
+#else
+        if (auto *F = dyn_cast<Function>(C)) {
+#endif
+          F->setDoesNotReturn();
+          F->setDoesNotThrow();
+        }
 
         llvm::IRBuilder<> Builder(ii);
-        Builder.CreateCall(F);
+        Builder.CreateCall(C);
         Builder.CreateUnreachable();
 
         i = ii->eraseFromParent();
@@ -291,7 +296,9 @@ bool IntrinsicCleanerPass::runOnBasicBlock(BasicBlock &b, Module &M) {
       case Intrinsic::objectsize: {
         // We don't know the size of an object in general so we replace
         // with 0 or -1 depending on the second argument to the intrinsic.
-#if LLVM_VERSION_CODE >= LLVM_VERSION(5, 0)
+#if LLVM_VERSION_CODE >= LLVM_VERSION(9, 0)
+        assert(ii->getNumArgOperands() == 4 && "wrong number of arguments");
+#elif LLVM_VERSION_CODE >= LLVM_VERSION(5, 0)
         assert(ii->getNumArgOperands() == 3 && "wrong number of arguments");
 #else
         assert(ii->getNumArgOperands() == 2 && "wrong number of arguments");
@@ -306,12 +313,22 @@ bool IntrinsicCleanerPass::runOnBasicBlock(BasicBlock &b, Module &M) {
 
 #if LLVM_VERSION_CODE >= LLVM_VERSION(5, 0)
         auto nullArg = ii->getArgOperand(2);
-        assert(nullArg && "Failed to get second argument");
+        assert(nullArg && "Failed to get third argument");
         auto nullArgAsInt = dyn_cast<ConstantInt>(nullArg);
         assert(nullArgAsInt && "Third arg is not a ConstantInt");
         assert(nullArgAsInt->getBitWidth() == 1 &&
                "Third argument is not an i1");
-	/* TODO should we do something with the 3rd argument? */
+        // TODO: should we do something with the 3rd argument?
+#endif
+
+#if LLVM_VERSION_CODE >= LLVM_VERSION(9, 0)
+        auto dynamicArg = ii->getArgOperand(3);
+        assert(dynamicArg && "Failed to get fourth argument");
+        auto dynamicArgAsInt = dyn_cast<ConstantInt>(dynamicArg);
+        assert(dynamicArgAsInt && "Fourth arg is not a ConstantInt");
+        assert(dynamicArgAsInt->getBitWidth() == 1 &&
+               "Fourth argument is not an i1");
+        // TODO: should we do something with the 4th argument?
 #endif
 
         Value *replacement = NULL;

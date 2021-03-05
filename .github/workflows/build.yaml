@@ -1,10 +1,6 @@
 name: CI
 
-on:
-  pull_request:
-    branches: master
-  push:
-    branches: master
+on: [pull_request, push]
 
 # Defaults for building KLEE
 env:
@@ -34,6 +30,7 @@ jobs:
   Linux:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         name: [
                 "LLVM 11",
